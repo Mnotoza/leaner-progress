@@ -1,24 +1,13 @@
 <?php
 
-public function register()
+namespace App\Exceptions;
+
+use Exception;
+
+class LearnerNotFoundException extends Exception
 {
-    $this->reportable(function (Throwable $e) {
-        Log::error('Unhandled Exception', [
-            'exception' => $e,
-            'message' => $e->getMessage(),
-        ]);
-    });
-
-    $this->renderable(function (Throwable $e, $request) {
-        if ($request->expectsJson()) {
-            return response()->json([
-                'error' => 'Something went wrong',
-                'details' => $e->getMessage()
-            ], 500);
-        }
-
-        return response()->view('errors.general', [
-            'message' => 'An unexpected error occurred. Please try again later.'
-        ], 500);
-    });
+    public function __construct($message = 'Learner not found', $code = 0, Exception $previous = null)
+    {
+        parent::__construct($message, $code, $previous);
+    }
 }

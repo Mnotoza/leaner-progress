@@ -1,26 +1,29 @@
 <?php
 
-public function register()
+namespace App\Exceptions;
+
+use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Throwable;
+
+class Handler extends ExceptionHandler
 {
-    $this->reportable(function (Throwable $e) {
-        Log::error('Unhandled Exception', [
-            'exception' => $e,
-            'message' => $e->getMessage(),
-        ]);
-    });
-
-    $this->renderable(function (Throwable $e, $request) {
-        if ($request->expectsJson()) {
+    public function register(): void
+    {
+        // Handle specific exceptions
+        $this->renderable(function (\Illuminate\Database\QueryException $e, $request) {
             return response()->json([
-                'error' => 'Something went wrong',
-                'details' => $e->getMessage()
+                'error' => 'Database error occurred',
+                'message' => $e->getMessage(),
             ], 500);
-        }
+        });
 
-        return response()->view('errors.general', [
-            'message' => 'An unexpected error occurred. Please try again later.'
-        ], 500);
-    });
+        $this->renderable(function (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e, $request) {
+            return response()->json([
+                'error' => 'Resource not found',
+            ], 404);
+        });
+    }
 }
+
 
 

@@ -1,23 +1,9 @@
 @extends('layouts.app')
 @vite(['resources/css/app.css', 'resources/js/app.js'])
-<style>
-    body {
-        font-family: 'Inter', sans-serif;
-        background-color: #f9fafb;
-        color: #333;
-        margin: 0;
-        padding: 0;
-    }
 
-    h2 {
-        font-weight: 600;
-        color: #007bff;
-        margin-bottom: 20px;
-    }
-</style>
 @section('content')
     <div class="container">
-        <h2>Learner Progress Dashboard</h2>
+        <!-- <h2>Learner Progress Dashboard</h2> -->
 
         <form method="GET" class="filters">
             <div class="filter-group">
@@ -33,11 +19,14 @@
             </div>
 
             <div class="filter-group">
-                <label for="sort">Sort:</label>
-                <select name="sort" id="sort">
-                    <option value="">-- Default --</option>
-                    <option value="name" {{ request('sort') == 'name' ? 'selected' : '' }}>Name (A → Z)</option>
-                    <option value="progress" {{ request('sort') == 'progress' ? 'selected' : '' }}>Progress (High → Low)
+                <label for="sort_progress">Sort by Progress:</label>
+                <select name="sort_progress" id="sort_progress">
+                    <option value="">-- None --</option>
+                    <option value="asc" {{ request('sort_progress') == 'asc' ? 'selected' : '' }}>
+                        Progress (%) Ascending
+                    </option>
+                    <option value="desc" {{ request('sort_progress') == 'desc' ? 'selected' : '' }}>
+                        Progress (%) Descending
                     </option>
                 </select>
             </div>
@@ -55,15 +44,14 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($learners as $learner)
-                    @foreach($learner->enrolments as $enrolment)
-                        <tr>
-                            <td>{{ $learner->firstname }} {{ $learner->lastname }}</td>
-                            <td>{{ $enrolment->course->name }}</td>
-                            <td>{{ $enrolment->progress ?? 'No progress yet' }}</td>
-                        </tr>
-                    @endforeach
+                @foreach($progress as $enrollment)
+                    <tr>
+                        <td>{{ $enrollment->learner->name }}</td>
+                        <td>{{ $enrollment->course->name }}</td>
+                        <td>{{ $enrollment->progress }}%</td>
+                    </tr>
                 @endforeach
+
             </tbody>
         </table>
     </div>

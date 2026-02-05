@@ -2,25 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request; 
-use App\Services\LearnerProgressService; 
+use Illuminate\Http\Request;
+use App\Services\LearnerProgressService;
+use App\Models\Enrolment;
+use App\Models;
 
-class LearnerProgressController extends Controller 
-{ 
-    protected $service; 
-    
-    public function __construct(LearnerProgressService $service) 
-    { 
-        $this->service = $service; 
-    } 
-    
+class LearnerProgressController extends Controller
+{
+    protected $progressService;
+    public function __construct(LearnerProgressService $progressService)
+    {
+        $this->progressService = $progressService;
+    }
     public function index(Request $request) 
     { 
-        $course = $request->input('course'); 
-        $sort = $request->input('sort'); 
-
-        $learners = $this->service->getLearnerProgress($course, $sort); 
-
-        return view('learner-progress.index', compact('learners')); 
+        $progress = $this->progressService->applyFilters($request); 
+        return view('learner-progress.index', compact('progress'));
     }
 }

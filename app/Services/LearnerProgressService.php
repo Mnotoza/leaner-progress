@@ -3,17 +3,32 @@
 namespace App\Services;
 
 use App\Models\Learner;
+use App\Models\Enrolment;
+use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\Collection;
 
 class LearnerProgressService
 {
-    public function getLearnerProgress(?string $course, ?string $sort)
+    public function applyFilters(Request $request): Collection
     {
-        $query = Learner::with(['enrolments' => function ($q) use ($course) {
-            if ($course) {
-                $q->where('course_id', $course)->with('course'); } else {
-                $q->with('course'); } }]);
-        if ($sort === 'progress') {
-            $query->withSum('enrolments', 'progress')->orderBy('enrolments_sum_progress', 'desc');
+        $query = Enrolment::query()
+            ->with(['course', 'learner']);  // eager load relationships
+        // Filter by course 
+        if ($request->filled('course')) {
+            $query->where('course_id', $request->course);
+        }
+        // Filter by progress range 
+        if ($request->filled('progress_min')) {
+            $query->where('progress', '>=', $request->progress_min);
+        }
+
+        if ($request->filled('progress_max')) {
+            $query->where('progress', '<=', $request->progress_max);
+        }
+        // Sorting by progress 
+        if ($request->filled('sort_progress')) {
+            $direction = $request->sort_progress === 'desc' ? 'desc' : 'asc';
+            $query->orderBy('progress', $direction);
         }
         return $query->get();
     }
